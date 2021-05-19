@@ -1,0 +1,158 @@
+{% if user %}
+<html>
+	<head>
+		<title>{{t}}</title>
+		<!-- href="/static/assets/style.css"-->
+		<link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='assets/style.css')}}" >
+		<link rel="stylesheet" type="text/css"  href="{{ url_for('static',filename='assets/emoji.css')}}" >
+        <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+		<script src="{{ url_for('static',filename='assets/twemoji.min.js')}}"></script>
+		<script src="{{ url_for('static',filename='assets/emoji.js')}}"></script>
+	</head>
+<body>
+	<h1>{{ h }}</h1>
+	<ul>
+		<li><a href="/list" class="{{ a1 }}">ALL</a></li>
+		<li><a href="/" class="{{ a2 }}">Uncompleted</a></li>
+		<li><a href="/completed" class="{{ a3 }}">Completed</a></li>
+	</ul>
+	<hr>
+	{% if todos[0] %}
+	<div span="right">
+	<form action="/search"	method="GET" >
+		<table class="none" id="close">
+		<tr>
+		<td></td><td></td>
+		<td><big><b>Search Reference:</b></big></td>
+		<td><select name="refer" required>
+			<option value="name">Task Name</option>
+			<option value="desc">Description</option>
+			<option value="date">Date</option>
+			<option value="pr">Priority</option>
+		</select></td>
+		<td><input type="text" name="key" placeholder="Search Task" size="15" /></td>
+		<td><button type="submit">Search</button></td>
+		</tr>
+		</table>
+	</form>
+	</div>
+	<b><big>To-Do LIST :</big></b>
+	<table>
+	    <tr id="row">
+	    	<th class="status">Status</th>
+	    	<th class="name">Task Name</th>
+	    	<th class="desc">Description Name</th>
+	    	<th class="date">Date</th>
+	    	<th class="pr">Priority</th>
+		<th class="func1">Remove</th>
+		<th class="func2">Modify</th>
+	    </tr>
+	{% for todo in todos %}
+		<tr class="datas">
+			<td><a href="./done?_id={{ todo['_id'] }}"><input type="image" src="static/images/{{todo['done']}}.png" alt="Submit ME"></a></td>
+			<td class="name">{{ todo["name"] }}</td>
+			<td class="desc">{{ todo["desc"] }}</td>
+			<td class="date">{{ todo["date"] }}</td>
+			<td class="pr">{{ todo["pr"] }}</td>
+			<td class="func1"><a href="./remove?_id={{ todo['_id'] }}"><button type="submit">DELETE</button></a></td>
+			<td class="func1"><a href="./update?_id={{ todo['_id'] }}"><button type="submit">EDIT</button></a></td>
+		</tr>
+	{% endfor %}
+	</table>
+	{% else %}
+		<h4>No Tasks in the List !!</h4>
+	{% endif %}
+	<hr/>
+	<form action="/action" method="POST">
+	<table class="none">
+		<tr>
+			<td><b><big><label>Add a Task : </label></big></b></td>
+		</tr>
+		<tr>
+		<td><input type="text" name="name" placeholder="Taskname" /></td>
+		<td><textarea name="desc" rows="1" cols="30" placeholder="Enter Description here..." required></textarea></td>
+		<td><input type="text" name="date" placeholder="Date" /></td>
+		<td><input type="text" name="pr" placeholder="Priority" /></td>
+		<td><button type="submit"> Create </button></td>
+		</tr>
+        </table>
+	</form>
+    <form action="/notestore" method="POST">
+      <textarea name="note" rows="5" cols="50">
+        Enter notes here
+    </textarea>
+        <button type="submit"> Create </button>
+	</form>
+	{% for note in notes %}
+		<textarea rows=5 cols=50>{{note['note']}}</textarea>
+        <a href="./removen?_id={{ note['_id'] }}"><button type="submit">DELETE</button></a>
+	{% endfor %}
+
+    <!--<small>
+    <p>Countdown until I'm done being on call!</p>
+    <pre>
+        Last Page Refresh: {{start}}
+        End Date: {{end}}
+    </pre>
+    </small>
+    <div id="refresh">{{diff}}</div>
+    <br />
+
+    <small>
+        <form action="/get-date-range" method="post">
+            <div>
+                <label for="end">End date:</label>
+                {% set value=end %}
+                <input type="date" id="end" name="end-date" value="{{value}}"/>
+            </div>
+            <div>
+                <input type="submit">
+            </div>
+        </form>
+    </small>-->
+    <div id="timer" onclick="toggleControls()"></div>
+    <div id="control">
+        <button onclick="setTimer()">Set timer</button>
+        <button onclick="resetTimer()">Reset</button>
+        <button onclick="toggleControls()">Hide</button>
+    </div>
+</body>
+</html>
+    <script type="text/javascript">
+   // $(document).ready(function() {
+        // auto-refresh the #refresh section of the page every 1 second
+     //   setInterval(function() {
+       //     $("#refresh").load(document.URL + ' #refresh');
+        //}, 1000);
+    //});
+   var endTime = (+localStorage.endTime || 0)
+    function setTimer() {
+        var duration = +prompt('How long to set the timer (minutes)', '15')
+        endTime = localStorage.endTime = duration * 60e3 + Date.now()
+        update()
+    }
+    function resetTimer() {
+        endTime = 0
+    }
+    function toggleControls() {
+        document.body.classList.toggle('controls-hidden')
+    }
+    function update() {
+        var timeLeft = endTime - Date.now()
+        if (timeLeft < 0) {
+            setText('--:--')
+        } else {
+            var minutes = Math.floor(timeLeft / 60e3)
+            var seconds = Math.floor(timeLeft / 1e3) % 60
+            setText(`${minutes}:${seconds.toString(10).padStart(2, '0')}`)
+        }
+    }
+    function setText(text) {
+        document.getElementById('timer').textContent = text
+    }
+    setInterval(update, 200)
+    </script>
+<a href="/logout">logout</a>
+{% else %}
+<a href="/login">login</a>
+{% endif %}
